@@ -1,0 +1,10 @@
+{
+  "name": "@hustle/battle-stage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Plays a finished Hustle gauntlet. It does not roll dice.",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
