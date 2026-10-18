@@ -250,7 +250,7 @@
   transform: translateX(6%);
 }
 .actor[data-pose="hit"] .puppet {
-  animation: struck 0.22s ease-out;
+  animation: none;
 }
 .actor[data-pose="hit"]::before {
   content: "";
@@ -492,4 +492,98 @@
   height: 20%;
   flex: 0 0 auto;
   opacity: 0.92;
+}
+
+.actor[data-active="true"] .call { opacity: 1; }
+.phase-stamp {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.15rem 0.8rem;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f4f7fb;
+  text-shadow: 0 0 24px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  animation: stamp 1.1s ease forwards;
+}
+.phase-stamp[data-phase="clash"] { color: #ff5a6e; }
+.phase-stamp[data-phase="escape"] { color: #f5c16c; }
+.phase-stamp[data-phase="end"] { color: #9aa6b8; letter-spacing: 0.28em; }
+.call {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 0.15rem;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f4f7fb;
+  text-shadow: 0 1px 3px #000;
+  opacity: 0.35;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.street[data-phase="entry"] .vignette { box-shadow: inset 0 0 8rem rgba(62, 224, 255, 0.16); }
+.street[data-phase="clash"] .vignette { box-shadow: inset 0 0 8rem rgba(255, 75, 104, 0.22); }
+.street[data-phase="escape"] .vignette { box-shadow: inset 0 0 8rem rgba(245, 193, 108, 0.16); }
+@keyframes stamp {
+  0% { opacity: 0; transform: translateX(-50%) scale(1.15); }
+  18% { opacity: 1; transform: translateX(-50%) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.recap {
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: #070b12ee;
+  border: 1px solid #2a3a50;
+  border-radius: 999px;
+}
+.recap strong { display: block; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.78rem; }
+.recap span { color: var(--color-muted); font-size: 0.72rem; }
+.recap button, .pit button {
+  border: 1px solid #2a3a50;
+  background: #0b111a;
+  color: var(--color-fg);
+  border-radius: 999px;
+  min-height: 2.2rem;
+  padding: 0 0.9rem;
+  cursor: pointer;
+}
+.pit { position: relative; min-height: 100dvh; overflow: auto; color: var(--color-fg); background: #070b12; }
+.pit .plate { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+.pit-shade { position: fixed; inset: 0; background: linear-gradient(#070b12cc, #070b12 70%); }
+.pit-head, .pit-spots, .pit-crews, .pit-dials { position: relative; z-index: 1; }
+.pit-head { padding: 1.2rem 1.2rem 0.2rem; }
+.pit-head p, .pit-head span { color: var(--color-muted); letter-spacing: 0.16em; text-transform: uppercase; font-size: 0.72rem; }
+.pit-head h1 { margin: 0.15rem 0; font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; font-size: 2rem; }
+.pit-spots, .pit-dials { display: flex; flex-wrap: wrap; gap: 0.45rem; padding: 0.6rem 1.2rem; align-items: end; }
+.pit-spots button[data-on="true"], .pit-roster button[data-on="true"] { border-color: var(--color-amber); color: var(--color-amber); }
+.pit-crews { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; padding: 0 1.2rem 1rem; }
+.crew-pick h2 { margin: 0; font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.95rem; }
+.pit-sum { margin: 0.2rem 0 0.45rem; color: var(--color-muted); font-size: 0.68rem; letter-spacing: 0.04em; }
+.pit-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); gap: 0.35rem; }
+.pit-roster button { display: grid; justify-items: center; gap: 0.1rem; padding: 0.3rem; min-height: 0; border-radius: 0.6rem; }
+.pit-roster img { width: 100%; height: 4.4rem; object-fit: contain; object-position: center bottom; }
+.pit-roster b { font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.pit-roster small { color: var(--color-muted); font-size: 0.6rem; }
+.pit-dials label { display: grid; gap: 0.2rem; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+.pit-run { background: var(--color-amber); color: #1a1208; border-color: var(--color-amber); font-family: var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; }
+@media (max-width: 800px) {
+  .pit-crews { grid-template-columns: 1fr; }
 }

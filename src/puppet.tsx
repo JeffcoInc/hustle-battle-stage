@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { muzzleShot } from "./sfx.ts";
 import type { Look, Pose } from "./types.ts";
 
 /** Short clips. Action poses play once per cue; idle keeps breathing. */
@@ -6,7 +7,7 @@ const CLIPS: Record<Pose, { frames: string[]; ms: number; hold: number; loop: bo
   idle: { frames: ["idle"], ms: 400, hold: 0, loop: true },
   guard: { frames: ["idle"], ms: 400, hold: 0, loop: true },
   strike: { frames: ["idle", "strike", "strike", "idle"], ms: 110, hold: 2, loop: false },
-  shoot: { frames: ["shoot", "shoot", "shoot-recoil", "shoot"], ms: 700, hold: 3, loop: false },
+  shoot: { frames: ["shoot", "shoot-recoil", "shoot"], ms: 110, hold: 0, loop: false },
   dodge: { frames: ["idle", "dodge", "dodge", "idle"], ms: 120, hold: 2, loop: false },
   hit: { frames: ["hit"], ms: 160, hold: 0, loop: false },
   heal: { frames: ["heal", "idle", "heal", "idle"], ms: 220, hold: 0, loop: true },
@@ -61,11 +62,30 @@ export function Puppet({ look, pose, cue = "", live = true }: { look: Look; pose
       window.clearInterval(timer);
     };
   }, [pose, cue, look.art, clip, live]);
+  useEffect(() => {
+    if (pose !== "shoot") return;
+    let cancel = false;
+    const go = () => {
+      if (cancel) return;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!cancel) muzzleShot();
+        });
+      });
+    };
+    const img = new Image();
+    img.src = `/puppets/${look.art}/shoot.png`;
+    if (img.complete && img.naturalWidth > 0) go();
+    else img.onload = go;
+    return () => {
+      cancel = true;
+    };
+  }, [pose, cue, look.art]);
   const name = clip.frames[Math.min(frame, clip.frames.length - 1)] ?? "idle";
   return (
     <span className="figure">
       <img className="puppet" src={`/puppets/${look.art}/${name}.png`} alt="" draggable={false} />
-      {pose === "shoot" && frame === 1 && <span className="muzzle" />}
+      {pose === "shoot" && frame === 0 && <span className="muzzle" />}
       {(pose === "hit" || pose === "down") && (
         <span className={pose === "down" ? "blood blood-stay" : "blood"} aria-hidden="true">
           <img className="spray" src="/fx/blood-spray.png" alt="" />

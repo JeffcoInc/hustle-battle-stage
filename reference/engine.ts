@@ -145,6 +145,17 @@ const sol: Look = { art: "reed", skin: "#e0b08a", cloth: "#171c26", trim: "#8ea0
 const june: Look = { art: "june", skin: "#e0b08a", cloth: "#241016", trim: "#ff3355", hair: "ponytail", top: "coat", build: "lean", gun: true };
 const wire: Look = { art: "spade", skin: "#3e2b24", cloth: "#160e12", trim: "#ff3355", hair: "hood", top: "hoodie", build: "heavy", gun: true };
 const pike: Look = { art: "lobo", skin: "#8a5a3a", cloth: "#1c1016", trim: "#ff3355", hair: "cap", top: "hoodie", build: "lean", gun: true };
+const rico: Look = { art: "rico", skin: "#8d5a3c", cloth: "#1a120f", trim: "#e7c56a", hair: "buzz", top: "tank", build: "heavy", beard: true, gun: true };
+const crow: Look = { art: "crow", skin: "#3e2b24", cloth: "#10141c", trim: "#9aa6b8", hair: "hood", top: "hoodie", build: "lean", gun: true };
+const nia: Look = { art: "nia", skin: "#6b3f2e", cloth: "#12161d", trim: "#e7c56a", hair: "braids", top: "leather", build: "lean", gun: true };
+const holt: Look = { art: "holt", skin: "#c48a62", cloth: "#3a3428", trim: "#d8d2c6", hair: "buzz", top: "coat", build: "heavy", beard: true, gun: true };
+const remy: Look = { art: "remy", skin: "#a56b45", cloth: "#3a1014", trim: "#e7c56a", hair: "buzz", top: "coat", build: "lean", gun: true };
+const drea: Look = { art: "drea", skin: "#6b3f2e", cloth: "#3d4630", trim: "#d8d2c6", hair: "buzz", top: "coat", build: "lean", gun: true };
+const moss: Look = { art: "moss", skin: "#e0b08a", cloth: "#12161d", trim: "#9aa6b8", hair: "buzz", top: "hoodie", build: "heavy", beard: true, gun: true };
+const sable: Look = { art: "sable", skin: "#c48a62", cloth: "#1a1c22", trim: "#d5dbe6", hair: "ponytail", top: "coat", build: "lean", gun: true };
+const cruz: Look = { art: "cruz", skin: "#a56b45", cloth: "#f2efe8", trim: "#ff3355", hair: "bandana", top: "tank", build: "lean", ink: true, gun: true };
+const wynn: Look = { art: "wynn", skin: "#e0b08a", cloth: "#12161d", trim: "#3ee0ff", hair: "cap", top: "hoodie", build: "lean", gun: true };
+const bo: Look = { art: "bo", skin: "#6b3f2e", cloth: "#3a3428", trim: "#e7c56a", hair: "braids", top: "coat", build: "heavy", gun: true };
 
 /** Published crew.config.json members. Ids, roles, and stats are the game's. */
 export const CREW: CastMember[] = [
@@ -155,6 +166,17 @@ export const CREW: CastMember[] = [
   { id: "vega", name: "Vega", role: "Captain", stats: { power: 14, stealth: 6, tech: 5, charisma: 10, loyalty: 14 }, look: vega, quote: "A long memory for loyalty." },
   { id: "wire", name: "Wire", role: "Hacker", stats: { power: 2, stealth: 8, tech: 20, charisma: 2, loyalty: 7 }, look: wire, quote: "Reads the city's signals." },
   { id: "pike", name: "Pike", role: "Fixer", stats: { power: 3, stealth: 13, tech: 8, charisma: 9, loyalty: 17 }, look: pike, quote: "Finds the crew its footing again." },
+  { id: "rico", name: "Rico", role: "Captain", stats: { power: 12, stealth: 6, tech: 5, charisma: 11, loyalty: 11 }, look: rico, quote: "The gate is his until someone takes it." },
+  { id: "crow", name: "Crow", role: "Scout", stats: { power: 3, stealth: 13, tech: 11, charisma: 4, loyalty: 6 }, look: crow, quote: "Sees the street before it moves." },
+  { id: "nia", name: "Nia", role: "Scout", stats: { power: 5, stealth: 15, tech: 6, charisma: 7, loyalty: 8 }, look: nia, quote: "Gets in quiet and leaves the door open." },
+  { id: "holt", name: "Holt", role: "Security", stats: { power: 13, stealth: 2, tech: 3, charisma: 5, loyalty: 15 }, look: holt, quote: "Does not step off the line." },
+  { id: "remy", name: "Remy", role: "Negotiator", stats: { power: 6, stealth: 5, tech: 3, charisma: 17, loyalty: 9 }, look: remy, quote: "Talks until the room picks a side." },
+  { id: "drea", name: "Drea", role: "Driver", stats: { power: 6, stealth: 11, tech: 8, charisma: 5, loyalty: 9 }, look: drea, quote: "Knows which road is still open." },
+  { id: "moss", name: "Moss", role: "Security", stats: { power: 15, stealth: 2, tech: 2, charisma: 4, loyalty: 12 }, look: moss, quote: "Stands where he was told." },
+  { id: "sable", name: "Sable", role: "Fixer", stats: { power: 4, stealth: 9, tech: 7, charisma: 12, loyalty: 14 }, look: sable, quote: "Settles the bill before it becomes a war." },
+  { id: "cruz", name: "Cruz", role: "Security", stats: { power: 11, stealth: 8, tech: 3, charisma: 8, loyalty: 6 }, look: cruz, quote: "Hits first when the talk fails." },
+  { id: "wynn", name: "Wynn", role: "Hacker", stats: { power: 3, stealth: 10, tech: 18, charisma: 4, loyalty: 7 }, look: wynn, quote: "Opens the lock and leaves no name." },
+  { id: "bo", name: "Bo", role: "Captain", stats: { power: 9, stealth: 4, tech: 4, charisma: 8, loyalty: 16 }, look: bo, quote: "The crew stays if she stays." },
 ];
 
 const member = (id: string) => {
@@ -197,20 +219,24 @@ export const PRESETS: Preset[] = [
   },
 ];
 
-export function teamStats(ids: string[]): Stats {
+function fighterById(id: string, roster?: CastMember[]) {
+  return roster?.find((fighter) => fighter.id === id) ?? member(id);
+}
+
+export function teamStats(ids: string[], roster?: CastMember[]): Stats {
   const result = { power: 0, stealth: 0, tech: 0, charisma: 0, loyalty: 0 };
   for (const id of new Set(ids)) {
-    const stats = member(id).stats;
+    const stats = fighterById(id, roster).stats;
     for (const key of STATS) result[key] += stats[key];
   }
   return result;
 }
 
-export function party(name: string, ids: string[], level: number, heat: number): Party {
-  const people = [...new Set(ids)].map(member);
+export function party(name: string, ids: string[], level: number, heat: number, roster?: CastMember[]): Party {
+  const people = [...new Set(ids)].map((id) => fighterById(id, roster));
   return {
     name,
-    stats: teamStats(ids),
+    stats: teamStats(ids, roster),
     leadership: COMBAT.leaderBase + COMBAT.leaderPerLevel * level + COMBAT.leaderPerBase * 0,
     roles: people.map((p) => p.role),
     heat,
@@ -317,11 +343,11 @@ function posesOf(people: CastMember[], injured?: string) {
   return poses;
 }
 
-export function stageBattle(preset: Preset, seed: string, level = 1, heat = 0): StagedBattle {
+export function stageBattle(preset: Preset, seed: string, level = 1, heat = 0, defenderLevel = 1, roster?: CastMember[]): StagedBattle {
   const attackerIds = preset.attacker;
   const defenderIds = preset.defender;
-  const attackerParty = party(preset.attackerName, attackerIds, level, heat);
-  const defenderParty = party(preset.defenderName, defenderIds, level, 0);
+  const attackerParty = party(preset.attackerName, attackerIds, level, heat, roster);
+  const defenderParty = party(preset.defenderName, defenderIds, defenderLevel, 0, roster);
   const input: BattleInput = {
     attacker: attackerParty,
     defender: defenderParty,
@@ -337,8 +363,8 @@ export function stageBattle(preset: Preset, seed: string, level = 1, heat = 0): 
   const territoryChanged = result.clash && result.escape;
   const phases = phaseReports(result);
   const injury = !result.clash && !result.escape ? (attackerIds[0] ?? null) : null;
-  const attackers = attackerIds.map(member);
-  const defenders = defenderIds.map(member);
+  const attackers = attackerIds.map((id) => fighterById(id, roster));
+  const defenders = defenderIds.map((id) => fighterById(id, roster));
   const all = [...attackers, ...defenders];
   const lead = { attacker: attackers[0].id, defender: defenders[0].id };
   const sideOf = (side: Side) => (side === "attacker" ? attackers : defenders);

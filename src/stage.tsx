@@ -157,14 +157,18 @@ function CrewCard({ side, crew, beat, fort, flips }: { side: Side; crew: StageCr
   );
 }
 
-export function BattleStage({ battle }: { battle: StageBattle }) {
+export function BattleStage({ battle, plate, onDone }: { battle: StageBattle; plate?: string; onDone?: (winner: Side | null) => void }) {
   const [speed, setSpeed] = useState(1);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [muted, setMute] = useState(false);
+  const [bang, setBang] = useState(false);
   const [audioTick, setAudioTick] = useState(0);
   const [take, setTake] = useState(0);
   const heard = useRef("");
+  const told = useRef(false);
+  const phaseWas = useRef("");
+  const [stamp, setStamp] = useState("");
   const holdRef = useRef(2.2);
   const streetRef = useRef<HTMLElement>(null);
   const beat = battle.beats[Math.min(index, battle.beats.length - 1)];
@@ -183,9 +187,28 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
   };
 
   useEffect(() => {
+    told.current = false;
+    phaseWas.current = "";
+    setStamp("");
     setIndex(0);
     setPlaying(!reducedMotion());
   }, [battle]);
+
+  useEffect(() => {
+    if (finished && !told.current) {
+      told.current = true;
+      onDone?.(battle.winner);
+    }
+  }, [finished, battle.winner, onDone]);
+
+  useEffect(() => {
+    const phase = beat.phase ?? "";
+    if (!phase || phase === phaseWas.current || phase === "faceoff") return;
+    phaseWas.current = phase;
+    setStamp(phase);
+    const timer = window.setTimeout(() => setStamp(""), 1100);
+    return () => window.clearTimeout(timer);
+  }, [beat.phase, index]);
 
   useEffect(() => {
     if (!playing) return;
@@ -212,8 +235,13 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
     setMute(saved);
     setMuted(saved);
     const onAudio = () => setAudioTick((n) => n + 1);
+    const onMuzzle = () => setBang(true);
     window.addEventListener("hustle-audio", onAudio);
-    return () => window.removeEventListener("hustle-audio", onAudio);
+    window.addEventListener("hustle-muzzle", onMuzzle);
+    return () => {
+      window.removeEventListener("hustle-audio", onAudio);
+      window.removeEventListener("hustle-muzzle", onMuzzle);
+    };
   }, []);
 
   useEffect(() => {
@@ -229,31 +257,28 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
 
   useEffect(() => {
     const el = streetRef.current;
-    if (!el || !impact || reducedMotion()) return;
+    if (!el || !bang || !impact || reducedMotion()) return;
     const amp = impact === "crit" ? 14 : impact === "dodge" ? 4 : 8;
-    const wait = shot ? 700 : 0;
-    let anim: Animation | undefined;
-    const timer = window.setTimeout(() => {
-      anim = el.animate(
-        [
-          { transform: "translate3d(0,0,0)" },
-          { transform: `translate3d(${-amp}px, ${amp * 0.35}px, 0)`, offset: 0.18 },
-          { transform: `translate3d(${amp * 0.75}px, ${-amp * 0.22}px, 0)`, offset: 0.42 },
-          { transform: `translate3d(${-amp * 0.35}px, ${amp * 0.12}px, 0)`, offset: 0.7 },
-          { transform: "translate3d(0,0,0)" },
-        ],
-        { duration: impact === "crit" ? 520 : 280, easing: "linear" },
-      );
-    }, wait);
-    return () => {
-      window.clearTimeout(timer);
-      anim?.cancel();
-    };
-  }, [impact, index, shot]);
+    const anim = el.animate(
+      [
+        { transform: "translate3d(0,0,0)" },
+        { transform: `translate3d(${-amp}px, ${amp * 0.35}px, 0)`, offset: 0.18 },
+        { transform: `translate3d(${amp * 0.75}px, ${-amp * 0.22}px, 0)`, offset: 0.42 },
+        { transform: `translate3d(${-amp * 0.35}px, ${amp * 0.12}px, 0)`, offset: 0.7 },
+        { transform: "translate3d(0,0,0)" },
+      ],
+      { duration: impact === "crit" ? 520 : 280, easing: "linear" },
+    );
+    return () => anim.cancel();
+  }, [bang, impact, index]);
 
   useEffect(() => {
     if (index >= battle.beats.length - 1) setPlaying(false);
   }, [index, battle.beats.length]);
+
+  useEffect(() => {
+    setBang(false);
+  }, [index, take]);
 
   useEffect(() => {
     const api = {
@@ -287,8 +312,8 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
         </div>
       </header>
 
-      <section className="street" aria-label="Battle stage" ref={streetRef} data-impact={impact || undefined}>
-        <img src="/stage/underpass.jpg" alt="" className="plate" />
+      <section className="street" aria-label="Battle stage" ref={streetRef} data-impact={impact || undefined} data-phase={beat.phase || beat.verb}>
+        <img src={plate || "/stage/underpass.jpg"} alt="" className="plate" />
         <div className="rain" />
         <div className="vignette" />
         <p className="neon neon-l">
@@ -314,7 +339,12 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
           )}
           <p>{beat.caption}</p>
         </div>
-        {(impact === "hit" || impact === "crit") && <div key={index} className="shot-flash" />}
+        {stamp && (
+          <div key={stamp} className="phase-stamp" data-phase={stamp}>
+            {stamp}
+          </div>
+        )}
+        {bang && (impact === "hit" || impact === "crit") && <div key={index} className="shot-flash" />}
         <div className="cast">
           {(["attacker", "defender"] as const).map((side) => (
             <div key={side} className={`wing wing-${side}`}>
@@ -332,6 +362,7 @@ export function BattleStage({ battle }: { battle: StageBattle }) {
                     style={{ animationDelay: `${i * 140}ms` }}
                   >
                     <Puppet look={f.look} pose={pose} cue={pose === "idle" || pose === "down" ? pose : `${index}:${pose}`} />
+                    <span className="call">{f.name}</span>
                   </div>
                 );
               })}
